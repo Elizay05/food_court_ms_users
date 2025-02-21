@@ -25,7 +25,7 @@ public class UserHandler implements IUserHandler {
     }
 
     @Override
-    public boolean isOwner(String documentNumber) {
-        return userServicePort.isOwner(documentNumber);
+    public void isOwner(String documentNumber) {
+        userServicePort.isOwner(documentNumber);
     }
 }

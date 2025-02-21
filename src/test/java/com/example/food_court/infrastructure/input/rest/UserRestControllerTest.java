@@ -13,8 +13,8 @@ import org.springframework.http.ResponseEntity;
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.doNothing;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.openMocks;
 
 @SpringBootTest
@@ -47,5 +47,19 @@ public class UserRestControllerTest {
 
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         verify(userHandler).saveOwner(userRequest);
+    }
+
+    @Test
+    public void testValidateOwnerReturnsTrueForValidDocument() {
+        String validDocumentNumber = "123456789";
+        UserRestController userRestController = new UserRestController(userHandler);
+
+        when(userHandler.isOwner(validDocumentNumber)).thenReturn(true);
+
+        ResponseEntity<Boolean> response = userRestController.validateOwner(validDocumentNumber);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertTrue(response.getBody());
+        verify(userHandler).isOwner(validDocumentNumber);
     }
 }

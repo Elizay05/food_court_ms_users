@@ -50,8 +50,5 @@ public class UserJpaAdapter implements IUserPersistencePort {
         return userEntityMapper.UserEntitytoUser(savedUserEntity);
     }
 
-    @Override
-    public boolean isOwner(String documentNumber) {
-        return userRepository.existsByDocumentNumberAndRoleId(documentNumber, 2);
-    }
+    
 }

@@ -4,4 +4,5 @@ import com.example.food_court.domain.model.User;
 
 public interface IUserServicePort {
     User saveOwner(User user);
+    boolean isOwner(String documentNumber);
 }

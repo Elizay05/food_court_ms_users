@@ -11,10 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -24,7 +21,6 @@ public class UserRestController {
 
     private final UserHandler userHandler;
 
-    @PostMapping("/saveOwner")
     @Operation(
             summary = "Create a new owner",
             description = "Registers a new owner in the system."
@@ -40,8 +36,25 @@ public class UserRestController {
     @ApiResponse(responseCode = "201", description = "Owner successfully created")
     @ApiResponse(responseCode = "400", description = "Validation error",
             content = @Content(mediaType = "application/json"))
+    @PostMapping("/saveOwner")
     public ResponseEntity<Void> saveOwner(@Valid @RequestBody UserRequest userRequest) {
         userHandler.saveOwner(userRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @Operation(
+            summary = "Validate Owner",
+            description = "Checks if a given document number belongs to a valid owner."
+    )
+    @ApiResponse(responseCode = "200", description = "Returns true if the owner is valid, false otherwise",
+            content = @Content(mediaType = "application/json", schema = @Schema(implementation = Boolean.class)))
+    @ApiResponse(responseCode = "400", description = "Invalid document number format",
+            content = @Content(mediaType = "application/json"))
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json"))
+    @GetMapping("/validate-owner/{documentNumber}")
+    public ResponseEntity<Boolean> validateOwner(@PathVariable String documentNumber) {
+        boolean isValid = userHandler.isOwner(documentNumber);
+        return ResponseEntity.ok(isValid);
     }
 }

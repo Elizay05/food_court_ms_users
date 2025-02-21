@@ -32,10 +32,7 @@ public class UserCase implements IUserServicePort {
         return userPersistencePort.saveOwner(user);
     }
 
-    @Override
-    public boolean isOwner(String documentNumber) {
-        return userPersistencePort.isOwner(documentNumber);
-    }
+    @
 
     public static boolean isAdult(LocalDate birthDate) {
         if (birthDate == null) {
