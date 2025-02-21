@@ -65,4 +65,19 @@ public class UserHandlerTest {
 
         assertTrue(result);
     }
+
+    @Test
+    public void testHandlesEmptyDocumentNumber() {
+        IUserServicePort userServicePort = mock(IUserServicePort.class);
+        String emptyDocument = "";
+
+        when(userServicePort.isOwner(emptyDocument)).thenReturn(false);
+
+        boolean result = userHandler.isOwner(emptyDocument);
+
+        assertFalse(result);
+        verify(userServicePort).isOwner(emptyDocument);
+    }
+
+
 }

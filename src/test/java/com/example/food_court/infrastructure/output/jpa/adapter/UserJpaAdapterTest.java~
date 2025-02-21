@@ -125,7 +125,7 @@ public class UserJpaAdapterTest {
     }
 
     @Test
-    public void testReturnsTrueWhenDocumentExistsWithRoleId2() {
+    public void test_returns_true_when_document_exists_with_role_id_2() {
         // Arrange
         String documentNumber = "12345";
         UserJpaAdapter userJpaAdapter = new UserJpaAdapter(userEntityMapper, userRepository, roleRepository, roleEntityMapper);
@@ -140,7 +140,7 @@ public class UserJpaAdapterTest {
     }
 
     @Test
-    public void testReturnsFalseForEmptyDocumentNumber() {
+    public void test_returns_false_for_empty_document_number() {
         // Arrange
         String documentNumber = "";
         UserJpaAdapter userJpaAdapter = new UserJpaAdapter(userEntityMapper, userRepository, roleRepository, roleEntityMapper);

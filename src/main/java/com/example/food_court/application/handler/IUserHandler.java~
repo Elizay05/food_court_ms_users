@@ -4,5 +4,5 @@ import com.example.food_court.application.dto.request.UserRequest;
 
 public interface IUserHandler {
     void saveOwner(UserRequest userRequest);
-    boolean isOwner (String documentNumber);
+    void isOwner (String documentNumber);
 }

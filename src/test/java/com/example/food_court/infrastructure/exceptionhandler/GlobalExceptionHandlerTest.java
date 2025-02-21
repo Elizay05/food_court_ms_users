@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 public class GlobalExceptionHandlerTest {
 
     @Test
-    public void test_handle_validation_exception_returns_error_map() {
+    public void testHandleValidationxExceptionReturnsErrorMap() {
         GlobalExceptionHandler handler = new GlobalExceptionHandler();
 
         BindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "object");
@@ -36,7 +36,7 @@ public class GlobalExceptionHandlerTest {
     }
 
     @Test
-    public void test_handle_multiple_validation_errors() {
+    public void testHandleMultipleValidationErrors() {
         GlobalExceptionHandler handler = new GlobalExceptionHandler();
 
         BindingResult bindingResult = new BeanPropertyBindingResult(new Object(), "object");
@@ -56,7 +56,7 @@ public class GlobalExceptionHandlerTest {
     }
 
     @Test
-    public void test_handle_element_not_found_exception_returns_not_found_status() {
+    public void testHandleElementNotFoundExceptionReturnsNotFoundStatus() {
         GlobalExceptionHandler handler = new GlobalExceptionHandler();
 
         ElementNotFoundException ex = new ElementNotFoundException("Element not found");
@@ -69,7 +69,7 @@ public class GlobalExceptionHandlerTest {
     }
 
     @Test
-    public void test_handle_field_already_exists_exception_returns_exception_response_with_bad_request_status() {
+    public void testHandleFieldAlreadyExistsExceptionReturnsExceptionResponseWithBadRequestStatus() {
         GlobalExceptionHandler handler = new GlobalExceptionHandler();
 
         String errorMessage = "Field already exists";
@@ -83,7 +83,7 @@ public class GlobalExceptionHandlerTest {
     }
 
     @Test
-    public void test_handle_general_exception_returns_internal_server_error() {
+    public void testHandleGeneralExceptionReturnsInternalServerError() {
         GlobalExceptionHandler handler = new GlobalExceptionHandler();
 
         Exception ex = new Exception("Unexpected error occurred");
@@ -95,7 +95,7 @@ public class GlobalExceptionHandlerTest {
     }
 
     @Test
-    public void test_handle_invalid_arguments_exception_returns_exception_response_with_bad_request_status() {
+    public void testHandleInvalidArgumentsExceptionReturnsExceptionResponseWithBadRequestStatus() {
         GlobalExceptionHandler handler = new GlobalExceptionHandler();
 
         InvalidArgumentsException ex = new InvalidArgumentsException("Invalid arguments provided");

@@ -5,26 +5,11 @@ import com.example.food_court.domain.model.Role;
 import com.example.food_court.domain.model.User;
 import com.example.food_court.domain.spi.IPasswordEncryptionPort;
 import com.example.food_court.domain.spi.IUserPersistencePort;
-import com.example.food_court.infrastructure.exception.ElementNotFoundException;
-import com.example.food_court.infrastructure.exception.FieldAlreadyExistsException;
-import com.example.food_court.infrastructure.output.jpa.adapter.UserJpaAdapter;
-import com.example.food_court.infrastructure.output.jpa.entity.RoleEntity;
-import com.example.food_court.infrastructure.output.jpa.entity.UserEntity;
-import com.example.food_court.infrastructure.output.jpa.mapper.IRoleEntityMapper;
-import com.example.food_court.infrastructure.output.jpa.mapper.IUserEntityMapper;
-import com.example.food_court.infrastructure.output.jpa.repository.IRoleRepository;
-import com.example.food_court.infrastructure.output.jpa.repository.IUserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
-import java.time.Month;
-import java.util.Collections;
-import java.util.Optional;
 
 import static com.example.food_court.infrastructure.exceptionhandler.ExceptionMessages.INVALID_ARGUMENTS_MESSAGE;
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,11 +18,14 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 public class UserCaseTest {
 
+    @Mock
+    private IUserPersistencePort userPersistencePort;
+
+    @Mock
+    private IPasswordEncryptionPort passwordEncryptionPort;
+
     @Test
-    public void save_owner_with_valid_adult_user_returns_saved_user() {
-        // Arrange
-        IUserPersistencePort userPersistencePort = mock(IUserPersistencePort.class);
-        IPasswordEncryptionPort passwordEncryptionPort = mock(IPasswordEncryptionPort.class);
+    public void SaveOwnerWithValidAdultUserReturnsSavedUser() {
         UserCase userCase = new UserCase(userPersistencePort, passwordEncryptionPort);
 
         User adultUser = new User(1L, "John", "Doe", "123", "+1234567890",
@@ -58,10 +46,7 @@ public class UserCaseTest {
     }
 
     @Test
-    public void save_owner_with_underage_user_throws_exception() {
-        // Arrange
-        IUserPersistencePort userPersistencePort = mock(IUserPersistencePort.class);
-        IPasswordEncryptionPort passwordEncryptionPort = mock(IPasswordEncryptionPort.class);
+    public void SaveOwnerWithUnderageUserThrowsException() {
         UserCase userCase = new UserCase(userPersistencePort, passwordEncryptionPort);
 
         User underageUser = new User(1L, "John", "Doe", "123", "+1234567890",
@@ -74,5 +59,31 @@ public class UserCaseTest {
         assertEquals(String.format(INVALID_ARGUMENTS_MESSAGE, "date of birth"), exception.getMessage());
         verify(passwordEncryptionPort, never()).encryptPassword(any());
         verify(userPersistencePort, never()).saveOwner(any());
+    }
+
+    @Test
+    public void TestReturnsTrueForValidOwner() {
+        UserCase userCase = new UserCase(userPersistencePort, passwordEncryptionPort);
+        String documentNumber = "12345";
+
+        when(userPersistencePort.isOwner(documentNumber)).thenReturn(true);
+
+        boolean result = userCase.isOwner(documentNumber);
+
+        assertTrue(result);
+        verify(userPersistencePort).isOwner(documentNumber);
+    }
+
+    @Test
+    public void test_handles_empty_document_number() {
+        UserCase userCase = new UserCase(userPersistencePort, passwordEncryptionPort);
+        String emptyDocument = "";
+
+        when(userPersistencePort.isOwner(emptyDocument)).thenReturn(false);
+
+        boolean result = userCase.isOwner(emptyDocument);
+
+        assertFalse(result);
+        verify(userPersistencePort).isOwner(emptyDocument);
     }
 }
