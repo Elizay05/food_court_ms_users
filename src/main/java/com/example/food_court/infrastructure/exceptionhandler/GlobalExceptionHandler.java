@@ -3,6 +3,7 @@ package com.example.food_court.infrastructure.exceptionhandler;
 import com.example.food_court.domain.exception.InvalidArgumentsException;
 import com.example.food_court.infrastructure.exception.ElementNotFoundException;
 import com.example.food_court.infrastructure.exception.FieldAlreadyExistsException;
+import com.example.food_court.infrastructure.exception.IncorrectCredentialsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -39,6 +40,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(FieldAlreadyExistsException.class)
     public ResponseEntity<ExceptionResponse> handleFieldAlreadyExistsException(FieldAlreadyExistsException ex) {
+        ExceptionResponse exceptionResponse = new ExceptionResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionResponse);
+    }
+
+    @ExceptionHandler(IncorrectCredentialsException.class)
+    public ResponseEntity<ExceptionResponse> handleIncorrectCredentialsException(IncorrectCredentialsException ex) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionResponse);
     }

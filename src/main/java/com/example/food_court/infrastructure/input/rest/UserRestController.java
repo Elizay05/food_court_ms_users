@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -37,6 +38,7 @@ public class UserRestController {
     @ApiResponse(responseCode = "400", description = "Validation error",
             content = @Content(mediaType = "application/json"))
     @PostMapping("/saveOwner")
+    @PreAuthorize("hasRole('ROLE_Administrator')")
     public ResponseEntity<Void> saveOwner(@Valid @RequestBody UserRequest userRequest) {
         userHandler.saveOwner(userRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
