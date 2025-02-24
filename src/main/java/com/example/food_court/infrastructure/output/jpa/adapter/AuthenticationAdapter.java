@@ -40,7 +40,8 @@ public class AuthenticationAdapter implements IAuthenticationPersistencePort {
                 .orElseThrow(() -> new IncorrectCredentialsException("Usuario no encontrado"));
 
         String documentNumber = userEntity.getDocumentNumber();
-        String jwtToken = jwtService.generateToken(userDetails, documentNumber);
+        String nit = userEntity.getNit();
+        String jwtToken = jwtService.generateToken(userDetails, documentNumber, nit);
         return new Token(jwtToken);
     }
 }

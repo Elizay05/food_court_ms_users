@@ -4,6 +4,7 @@ import com.example.food_court.domain.api.IAuthenticationServicePort;
 import com.example.food_court.domain.api.IUserServicePort;
 import com.example.food_court.domain.spi.IAuthenticationPersistencePort;
 import com.example.food_court.domain.spi.IPasswordEncryptionPort;
+import com.example.food_court.domain.spi.ISmallSquarePersistencePort;
 import com.example.food_court.domain.spi.IUserPersistencePort;
 import com.example.food_court.domain.usecase.AuthenticationUseCase;
 import com.example.food_court.domain.usecase.UserCase;
@@ -14,11 +15,14 @@ import com.example.food_court.infrastructure.output.jpa.mapper.IRoleEntityMapper
 import com.example.food_court.infrastructure.output.jpa.mapper.IUserEntityMapper;
 import com.example.food_court.infrastructure.output.jpa.repository.IRoleRepository;
 import com.example.food_court.infrastructure.output.jpa.repository.IUserRepository;
+import com.example.food_court.infrastructure.output.rest.SmallSquareRestAdapter;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.web.client.RestTemplate;
 
 @Configuration
 @RequiredArgsConstructor
@@ -39,8 +43,18 @@ public class BeanConfiguration {
     }
 
     @Bean
-    public IUserServicePort userServicePort() {
-        return new UserCase(userPersistencePort(), passwordEncryptionPort);
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+
+    @Bean
+    public ISmallSquarePersistencePort smallSquarePersistencePort(RestTemplate restTemplate, HttpServletRequest httpServletRequest){
+        return new SmallSquareRestAdapter(restTemplate, httpServletRequest);
+    }
+
+    @Bean
+    public IUserServicePort userServicePort(ISmallSquarePersistencePort smallSquarePersistencePort) {
+        return new UserCase(userPersistencePort(), passwordEncryptionPort, smallSquarePersistencePort);
     }
 
     @Bean

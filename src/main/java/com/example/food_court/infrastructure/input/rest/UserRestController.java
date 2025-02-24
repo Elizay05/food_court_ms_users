@@ -54,9 +54,26 @@ public class UserRestController {
             content = @Content(mediaType = "application/json"))
     @ApiResponse(responseCode = "500", description = "Internal server error",
             content = @Content(mediaType = "application/json"))
+    @PreAuthorize("hasRole('ROLE_Administrator')")
     @GetMapping("/validate-owner/{documentNumber}")
     public ResponseEntity<Boolean> validateOwner(@PathVariable String documentNumber) {
         boolean isValid = userHandler.isOwner(documentNumber);
         return ResponseEntity.ok(isValid);
+    }
+
+    @PostMapping("/saveEmployee")
+    @PreAuthorize("hasRole('ROLE_Owner')")
+    public ResponseEntity<Void> saveEmployee(@Valid @RequestBody UserRequest userRequest) {
+        userHandler.saveEmployee(userRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @PutMapping("/updateNit/{documentNumber}/{nitRestaurant}")
+    @PreAuthorize("hasRole('ROLE_Administrator')")
+    public ResponseEntity<String> updateNit(
+            @PathVariable String documentNumber,
+            @PathVariable String nitRestaurant) {
+        userHandler.updateNit(documentNumber, nitRestaurant);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }

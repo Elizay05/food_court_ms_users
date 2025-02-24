@@ -44,7 +44,7 @@ public class UserHandlerTest {
 
     @Test
     public void testSaveOwnerWithValidUserRequest() {
-        User user = new User(1L, "John", "Doe", "123456789", "+1234567890", LocalDate.of(1990, 1, 1), "john.doe@example.com", "password123", null);
+        User user = new User(1L, "John", "Doe", "123456789", "+1234567890", LocalDate.of(1990, 1, 1), "john.doe@example.com", "password123", null, "1112223334");
         when(userRequestMapper.UserRequestToUser(userRequest)).thenReturn(user);
 
         userHandler.saveOwner(userRequest);
@@ -64,5 +64,32 @@ public class UserHandlerTest {
         verify(userServicePort).isOwner(documentNumber);
 
         assertTrue(result);
+    }
+
+    @Test
+    public void test_valid_user_request_maps_to_user() {
+        User expectedUser = new User(null, "John", "Doe", "12345", "+573005698325",
+                LocalDate.of(1990, 1, 1), "john@example.com", "password123", null, "1112223334");
+
+        when(userRequestMapper.UserRequestToUser(userRequest)).thenReturn(expectedUser);
+
+        // Act
+        userHandler.saveEmployee(userRequest);
+
+        // Assert
+        verify(userRequestMapper).UserRequestToUser(userRequest);
+        verify(userServicePort).saveEmployee(expectedUser);
+    }
+
+    @Test
+    public void test_update_nit_success() {
+        String documentNumber = "123456789";
+        String nitRestaurant = "987654321";
+
+        // Act
+        userHandler.updateNit(documentNumber, nitRestaurant);
+
+        // Assert
+        verify(userServicePort).updateNit(documentNumber, nitRestaurant);
     }
 }

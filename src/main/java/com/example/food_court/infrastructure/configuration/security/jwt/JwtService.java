@@ -21,7 +21,7 @@ public class JwtService {
         return Keys.hmacShaKeyFor(SECRET_KEY.getBytes());
     }
 
-    public String generateToken(UserDetails userDetails, String documentNumber) {
+    public String generateToken(UserDetails userDetails, String documentNumber, String nit) {
         String role = userDetails.getAuthorities().stream()
                 .findFirst()
                 .map(grantedAuthority -> grantedAuthority.getAuthority())
@@ -31,6 +31,7 @@ public class JwtService {
                 .setSubject(userDetails.getUsername())
                 .claim("role", role)
                 .claim("documentNumber", documentNumber)
+                .claim("nit", nit)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
                 .signWith(getSigningKey(), SignatureAlgorithm.HS256)
@@ -62,6 +63,15 @@ public class JwtService {
                 .parseClaimsJws(token)
                 .getBody()
                 .get("documentNumber", String.class);
+    }
+
+    public String extractNit(String token) {
+        return Jwts.parserBuilder()
+                .setSigningKey(getSigningKey())
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("nit", String.class);
     }
 
     public boolean validateToken(String token, UserDetails userDetails) {

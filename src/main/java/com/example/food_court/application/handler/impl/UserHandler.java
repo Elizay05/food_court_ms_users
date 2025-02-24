@@ -28,4 +28,15 @@ public class UserHandler implements IUserHandler {
     public boolean isOwner(String documentNumber) {
         return userServicePort.isOwner(documentNumber);
     }
+
+    @Override
+    public void saveEmployee(@Valid UserRequest userRequest) {
+        User user = userRequestMapper.UserRequestToUser(userRequest);
+        userServicePort.saveEmployee(user);
+    }
+
+    @Override
+    public void updateNit(String documentNumber, String nitRestaurant){
+        userServicePort.updateNit(documentNumber, nitRestaurant);
+    }
 }

@@ -45,6 +45,7 @@ public class AuthenticationAdapterTest {
         String email = "test@email.com";
         String password = "password123";
         String documentNumber = "12345";
+        String nit = "1127532669";
         String jwtToken = "generated.jwt.token";
 
         Authentication authentication = new Authentication(email, password);
@@ -52,12 +53,13 @@ public class AuthenticationAdapterTest {
         UserEntity userEntity = UserEntity.builder()
                 .email(email)
                 .documentNumber(documentNumber)
+                .nit(nit)
                 .build();
 
         when(authenticationManager.authenticate(any())).thenReturn(null);
         when(userDetailsService.loadUserByUsername(email)).thenReturn(userDetails);
         when(userRepository.findByEmail(email)).thenReturn(Optional.of(userEntity));
-        when(jwtService.generateToken(userDetails, documentNumber)).thenReturn(jwtToken);
+        when(jwtService.generateToken(userDetails, documentNumber, nit)).thenReturn(jwtToken);
 
         // Act
         Token result = authenticationAdapter.authenticate(authentication);
@@ -68,7 +70,7 @@ public class AuthenticationAdapterTest {
         verify(authenticationManager).authenticate(any());
         verify(userDetailsService).loadUserByUsername(email);
         verify(userRepository).findByEmail(email);
-        verify(jwtService).generateToken(userDetails, documentNumber);
+        verify(jwtService).generateToken(userDetails, documentNumber, nit);
     }
 
     @Test

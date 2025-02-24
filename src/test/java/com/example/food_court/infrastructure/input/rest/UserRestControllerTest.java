@@ -9,11 +9,11 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 import static org.mockito.MockitoAnnotations.openMocks;
 
@@ -61,5 +61,41 @@ public class UserRestControllerTest {
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertTrue(response.getBody());
         verify(userHandler).isOwner(validDocumentNumber);
+    }
+
+    @Test
+    public void test_save_employee_success() {
+        UserRequest userRequest = new UserRequest();
+        userRequest.setName("John");
+        userRequest.setLastName("Doe");
+        userRequest.setDocumentNumber("12345");
+        userRequest.setCellphoneNumber("+573005698325");
+        userRequest.setDateBirth(LocalDate.of(1990, 1, 1));
+        userRequest.setEmail("john@example.com");
+        userRequest.setPassword("password123");
+
+        doNothing().when(userHandler).saveEmployee(any(UserRequest.class));
+
+        // Act
+        ResponseEntity<Void> response = userRestController.saveEmployee(userRequest);
+
+        // Assert
+        verify(userHandler).saveEmployee(userRequest);
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+    }
+
+    @Test
+    public void test_admin_can_update_nit() {
+        String documentNumber = "123456";
+        String nitRestaurant = "987654";
+
+        doNothing().when(userHandler).updateNit(documentNumber, nitRestaurant);
+
+        // Act
+        ResponseEntity<String> response = userRestController.updateNit(documentNumber, nitRestaurant);
+
+        // Assert
+        verify(userHandler).updateNit(documentNumber, nitRestaurant);
+        assertEquals(HttpStatus.OK, response.getStatusCode());
     }
 }

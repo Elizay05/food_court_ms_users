@@ -7,7 +7,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IUserRepository extends JpaRepository<UserEntity, Long> {
-    List<UserEntity> findByDocumentNumber(String documentNumber);
+    List<UserEntity> findAllByDocumentNumber(String documentNumber);
+    Optional<UserEntity> findByDocumentNumber(String documentNumber);
     Optional<UserEntity> findByEmail(String email);
     boolean existsByDocumentNumberAndRoleId(String documentNumber, int roleId);
 }
