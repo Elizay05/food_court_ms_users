@@ -3,6 +3,7 @@ package com.example.food_court.infrastructure.exceptionhandler;
 import com.example.food_court.domain.exception.InvalidArgumentsException;
 import com.example.food_court.infrastructure.exception.ElementNotFoundException;
 import com.example.food_court.infrastructure.exception.FieldAlreadyExistsException;
+import com.example.food_court.infrastructure.exception.IncorrectCredentialsException;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
@@ -106,5 +107,19 @@ public class GlobalExceptionHandlerTest {
         assertEquals("Invalid arguments provided", response.getBody().getMessage());
         assertEquals(HttpStatus.BAD_REQUEST.toString(), response.getBody().getStatus());
         assertNotNull(response.getBody().getTimestamp());
+    }
+
+    @Test
+    public void testHandleIncorrectCredentialsExceptionReturnsExceptionResponseWithBadRequestStatus() {
+        GlobalExceptionHandler handler = new GlobalExceptionHandler();
+
+        String errorMessage = "Incorect credentials";
+        IncorrectCredentialsException ex = new IncorrectCredentialsException(errorMessage);
+
+        ResponseEntity<ExceptionResponse> response = handler.handleIncorrectCredentialsException(ex);
+
+        assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
+        assertEquals(errorMessage, response.getBody().getMessage());
+        assertEquals(HttpStatus.BAD_REQUEST.toString(), response.getBody().getStatus());
     }
 }
