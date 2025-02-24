@@ -15,6 +15,7 @@ import com.example.food_court.infrastructure.output.jpa.repository.IUserReposito
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -27,7 +28,7 @@ public class UserJpaAdapter implements IUserPersistencePort {
 
     @Override
     public User saveOwner(User user) {
-        List<UserEntity> usersIdentification = userRepository.findByDocumentNumber(user.getDocumentNumber());
+        List<UserEntity> usersIdentification = userRepository.findAllByDocumentNumber(user.getDocumentNumber());
         if (!usersIdentification.isEmpty()) {
             throw new FieldAlreadyExistsException(String.format(ExceptionMessages.FIELD_ALREADY_EXISTS, "The identification document"));
         }
@@ -53,5 +54,39 @@ public class UserJpaAdapter implements IUserPersistencePort {
     @Override
     public boolean isOwner(String documentNumber) {
         return userRepository.existsByDocumentNumberAndRoleId(documentNumber, 2);
+    }
+
+    @Override
+    public User saveEmployee(User user) {
+        List<UserEntity> usersIdentification = userRepository.findAllByDocumentNumber(user.getDocumentNumber());
+        if (!usersIdentification.isEmpty()) {
+            throw new FieldAlreadyExistsException(String.format(ExceptionMessages.FIELD_ALREADY_EXISTS, "The identification document"));
+        }
+        Optional<UserEntity> usersEmail = userRepository.findByEmail(user.getEmail());
+        if (usersEmail.isPresent()) {
+            throw new FieldAlreadyExistsException(String.format(ExceptionMessages.FIELD_ALREADY_EXISTS, "The email"));
+        }
+
+        RoleEntity roleEntity = roleRepository.findById(3L)
+                .orElseThrow(() -> new ElementNotFoundException(
+                        String.format(ExceptionMessages.ELEMENT_NOT_FOUND, "role")
+                ));
+
+        Role role = roleEntityMapper.RoleEntitytoRole(roleEntity);
+        user.setRole(role);
+
+        UserEntity userEntity = userEntityMapper.UsertoUserEntity(user);
+        UserEntity savedUserEntity = userRepository.save(userEntity);
+
+        return userEntityMapper.UserEntitytoUser(savedUserEntity);
+    }
+
+    @Override
+    public void updateNit(String documentNumber, String nitRestaurant){
+        UserEntity user = userRepository.findByDocumentNumber(documentNumber)
+                .orElseThrow(() -> new NoSuchElementException("No se encontró un usuario con la cédula proporcionada."));
+
+        user.setNit(nitRestaurant);
+        userRepository.save(user);
     }
 }

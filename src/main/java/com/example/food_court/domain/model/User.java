@@ -13,8 +13,9 @@ public class User {
     private final String email;
     private String password;
     private Role role;
+    private String nit;
 
-    public User(Long id, String name, String lastName, String documentNumber, String cellphoneNumber, LocalDate dateBirth, String email, String password, Role role) {
+    public User(Long id, String name, String lastName, String documentNumber, String cellphoneNumber, LocalDate dateBirth, String email, String password, Role role, String nit) {
         this.id = id;
         this.name = name;
         this.lastName = lastName;
@@ -24,6 +25,7 @@ public class User {
         this.email = email;
         this.password = password;
         this.role = role;
+        this.nit = nit;
     }
 
     public Long getId() {
@@ -69,4 +71,9 @@ public class User {
     public void setRole(Role role) {
         this.role = role;
     }
+
+    public String getNit() {return nit;}
+
+    public void setNit(String nit) {this.nit = nit;}
+
 }

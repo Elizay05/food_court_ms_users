@@ -40,4 +40,6 @@ public class UserEntity {
     @ManyToOne
     @JoinColumn(name = "id_rol")
     private RoleEntity role;
+
+    private String nit;
 }
