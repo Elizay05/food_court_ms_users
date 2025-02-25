@@ -306,4 +306,90 @@ public class UserJpaAdapterTest {
         verify(userRepository).findByDocumentNumber(documentNumber);
         verify(userRepository, never()).save(any(UserEntity.class));
     }
+
+    @Test
+    public void testSaveCustomerSuccess() {
+
+        UserJpaAdapter userJpaAdapter = new UserJpaAdapter(userEntityMapper, userRepository, roleRepository, roleEntityMapper);
+
+        Role role = new Role(4L, "CUSTOMER", "Description for customer");
+        User user = new User(1L, "John", "Doe", "123456", "1234567890", LocalDate.now(), "john@email.com", "password", role, "1112223334");
+        RoleEntity roleEntity = new RoleEntity(4L, "CUSTOMER", "Description for customer");
+        UserEntity userEntity = new UserEntity(1L, "John", "Doe", "123456", "1234567890", "2023-01-01", "john@email.com", "password", roleEntity, "1127563333");
+
+        when(userRepository.findAllByDocumentNumber("123456")).thenReturn(Collections.emptyList());
+        when(userRepository.findByEmail("john@email.com")).thenReturn(Optional.empty());
+        when(roleRepository.findById(4L)).thenReturn(Optional.of(roleEntity));
+        when(roleEntityMapper.RoleEntitytoRole(roleEntity)).thenReturn(role);
+        when(userEntityMapper.UsertoUserEntity(user)).thenReturn(userEntity);
+        when(userRepository.save(userEntity)).thenReturn(userEntity);
+        when(userEntityMapper.UserEntitytoUser(userEntity)).thenReturn(user);
+
+        // Act
+        User savedUser = userJpaAdapter.saveCustomer(user);
+
+        // Assert
+        assertNotNull(savedUser);
+        assertEquals(user.getId(), savedUser.getId());
+        assertEquals(user.getEmail(), savedUser.getEmail());
+        verify(userRepository).save(userEntity);
+    }
+
+    @Test
+    public void testSaveCustomerExistingDocumentThrowsException() {
+
+        UserJpaAdapter userJpaAdapter = new UserJpaAdapter(userEntityMapper, userRepository, roleRepository, roleEntityMapper);
+
+        User user = new User(1L, "John", "Doe", "123456", "1234567890", LocalDate.now(), "john@email.com", "password", null, "1112223334");
+        UserEntity existingUser = new UserEntity(2L, "Jane", "Doe", "123456", "9876543210", "2023-01-01", "jane@email.com", "password", null, "1127563333");
+
+        when(userRepository.findAllByDocumentNumber("123456")).thenReturn(Collections.singletonList(existingUser));
+
+        // Act & Assert
+        FieldAlreadyExistsException exception = assertThrows(FieldAlreadyExistsException.class, () -> {
+            userJpaAdapter.saveCustomer(user);
+        });
+
+        assertEquals("The identification document already exists.", exception.getMessage());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    public void testSaveCustomerExistingEmailThrowsException() {
+
+        UserJpaAdapter userJpaAdapter = new UserJpaAdapter(userEntityMapper, userRepository, roleRepository, roleEntityMapper);
+
+        User user = new User(1L, "John", "Doe", "123456", "1234567890", LocalDate.now(), "john@email.com", "password", null, "1112223334");
+        UserEntity existingUser = new UserEntity(2L, "Jane", "Doe", "654321", "9876543210", "2023-01-01", "john@email.com", "password", null, "1127563333");
+
+        when(userRepository.findByEmail("john@email.com")).thenReturn(Optional.of(existingUser));
+
+        // Act & Assert
+        FieldAlreadyExistsException exception = assertThrows(FieldAlreadyExistsException.class, () -> {
+            userJpaAdapter.saveCustomer(user);
+        });
+
+        assertEquals("The email already exists.", exception.getMessage());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    public void testSaveCustomerRoleNotFoundThrowsException() {
+
+        UserJpaAdapter userJpaAdapter = new UserJpaAdapter(userEntityMapper, userRepository, roleRepository, roleEntityMapper);
+
+        User user = new User(1L, "John", "Doe", "123456", "1234567890", LocalDate.now(), "john@email.com", "password", new Role(4L, "CUSTOMER", "Description for customer"), "1112223334");
+
+        when(userRepository.findAllByDocumentNumber(user.getDocumentNumber())).thenReturn(Collections.emptyList());
+        when(userRepository.findByEmail(user.getEmail())).thenReturn(Optional.empty());
+        when(roleRepository.findById(4L)).thenReturn(Optional.empty());
+
+        // Act & Assert
+        ElementNotFoundException exception = assertThrows(ElementNotFoundException.class, () -> {
+            userJpaAdapter.saveCustomer(user);
+        });
+
+        assertEquals("role was not found.", exception.getMessage());
+        verify(userRepository, never()).save(any());
+    }
 }

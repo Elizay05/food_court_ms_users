@@ -39,4 +39,10 @@ public class UserHandler implements IUserHandler {
     public void updateNit(String documentNumber, String nitRestaurant){
         userServicePort.updateNit(documentNumber, nitRestaurant);
     }
+
+    @Override
+    public void saveCustomer(@Valid UserRequest userRequest){
+        User user = userRequestMapper.UserRequestToUser(userRequest);
+        userServicePort.saveCustomer(user);
+    }
 }

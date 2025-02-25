@@ -9,13 +9,11 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
-import static org.mockito.MockitoAnnotations.openMocks;
 
 @SpringBootTest
 public class UserRestControllerTest {
@@ -97,5 +95,17 @@ public class UserRestControllerTest {
         // Assert
         verify(userHandler).updateNit(documentNumber, nitRestaurant);
         assertEquals(HttpStatus.OK, response.getStatusCode());
+    }
+
+    @Test
+    public void test_save_customer_returns_created_status() {
+        doNothing().when(userHandler).saveCustomer(any(UserRequest.class));
+
+        // Act
+        ResponseEntity<Void> response = userRestController.saveCustomer(userRequest);
+
+        // Assert
+        assertEquals(HttpStatus.CREATED, response.getStatusCode());
+        verify(userHandler).saveCustomer(userRequest);
     }
 }

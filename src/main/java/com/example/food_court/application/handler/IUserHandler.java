@@ -7,4 +7,5 @@ public interface IUserHandler {
     boolean isOwner (String documentNumber);
     void saveEmployee(UserRequest userRequest);
     void updateNit (String documentNumber, String nitRestaurant);
+    void saveCustomer (UserRequest userRequest);
 }

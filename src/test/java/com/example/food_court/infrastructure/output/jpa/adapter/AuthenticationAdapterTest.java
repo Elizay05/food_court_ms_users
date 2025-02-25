@@ -37,7 +37,7 @@ public class AuthenticationAdapterTest {
     private UserDetailsService userDetailsService;
 
     @InjectMocks
-    private AuthenticationAdapter authenticationAdapter;
+    private AuthenticationJpaAdapter authenticationAdapter;
 
     @Test
     public void test_authenticate_success_with_valid_credentials() {

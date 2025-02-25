@@ -9,7 +9,7 @@ import com.example.food_court.domain.spi.IUserPersistencePort;
 import com.example.food_court.domain.usecase.AuthenticationUseCase;
 import com.example.food_court.domain.usecase.UserCase;
 import com.example.food_court.infrastructure.configuration.security.jwt.JwtService;
-import com.example.food_court.infrastructure.output.jpa.adapter.AuthenticationAdapter;
+import com.example.food_court.infrastructure.output.jpa.adapter.AuthenticationJpaAdapter;
 import com.example.food_court.infrastructure.output.jpa.adapter.UserJpaAdapter;
 import com.example.food_court.infrastructure.output.jpa.mapper.IRoleEntityMapper;
 import com.example.food_court.infrastructure.output.jpa.mapper.IUserEntityMapper;
@@ -59,7 +59,7 @@ public class BeanConfiguration {
 
     @Bean
     public IAuthenticationPersistencePort authenticationPersistencePort() {
-        return new AuthenticationAdapter(userRepository, jwtService, authenticationManager, userDetailsService);
+        return new AuthenticationJpaAdapter(userRepository, jwtService, authenticationManager, userDetailsService);
     }
     @Bean
     public IAuthenticationServicePort authenticationServicePort() {

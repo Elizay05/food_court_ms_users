@@ -89,4 +89,29 @@ public class UserJpaAdapter implements IUserPersistencePort {
         user.setNit(nitRestaurant);
         userRepository.save(user);
     }
+
+    @Override
+    public User saveCustomer(User user) {
+        List<UserEntity> usersIdentification = userRepository.findAllByDocumentNumber(user.getDocumentNumber());
+        if (!usersIdentification.isEmpty()) {
+            throw new FieldAlreadyExistsException(String.format(ExceptionMessages.FIELD_ALREADY_EXISTS, "The identification document"));
+        }
+        Optional<UserEntity> usersEmail = userRepository.findByEmail(user.getEmail());
+        if (usersEmail.isPresent()) {
+            throw new FieldAlreadyExistsException(String.format(ExceptionMessages.FIELD_ALREADY_EXISTS, "The email"));
+        }
+
+        RoleEntity roleEntity = roleRepository.findById(4L)
+                .orElseThrow(() -> new ElementNotFoundException(
+                        String.format(ExceptionMessages.ELEMENT_NOT_FOUND, "role")
+                ));
+
+        Role role = roleEntityMapper.RoleEntitytoRole(roleEntity);
+        user.setRole(role);
+
+        UserEntity userEntity = userEntityMapper.UsertoUserEntity(user);
+        UserEntity savedUserEntity = userRepository.save(userEntity);
+
+        return userEntityMapper.UserEntitytoUser(savedUserEntity);
+    }
 }

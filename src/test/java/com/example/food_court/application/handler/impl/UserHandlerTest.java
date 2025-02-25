@@ -12,7 +12,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -67,7 +66,7 @@ public class UserHandlerTest {
     }
 
     @Test
-    public void test_valid_user_request_maps_to_user() {
+    public void test_valid_user_request_maps_to_user_employee() {
         User expectedUser = new User(null, "John", "Doe", "12345", "+573005698325",
                 LocalDate.of(1990, 1, 1), "john@example.com", "password123", null, "1112223334");
 
@@ -91,5 +90,20 @@ public class UserHandlerTest {
 
         // Assert
         verify(userServicePort).updateNit(documentNumber, nitRestaurant);
+    }
+
+    @Test
+    public void test_valid_user_request_maps_to_user_customer() {
+        User expectedUser = new User(null, "John", "Doe", "12345", "+573005698325",
+                LocalDate.of(1990, 1, 1), "john@example.com", "password123", null, null);
+
+        when(userRequestMapper.UserRequestToUser(userRequest)).thenReturn(expectedUser);
+
+        // Act
+        userHandler.saveCustomer(userRequest);
+
+        // Assert
+        verify(userRequestMapper).UserRequestToUser(userRequest);
+        verify(userServicePort).saveCustomer(expectedUser);
     }
 }
