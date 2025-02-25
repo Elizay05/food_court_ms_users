@@ -7,4 +7,5 @@ public interface IUserPersistencePort {
     boolean isOwner(String documentNumber);
     User saveEmployee (User user);
     void updateNit (String documentNumber, String nitRestaurant);
+    User saveCustomer (User user);
 }

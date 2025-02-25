@@ -66,4 +66,16 @@ public class UserCase implements IUserServicePort {
     public void updateNit(String documentNumber, String nitRestaurant){
         userPersistencePort.updateNit(documentNumber, nitRestaurant);
     }
+
+    @Override
+    public User saveCustomer(User user) {
+        if (!isAdult(user.getDateBirth())) {
+            throw new InvalidArgumentsException(String.format(INVALID_ARGUMENTS_MESSAGE, "date of birth"));
+        }
+
+        String encryptedPassword = passwordEncryptionPort.encryptPassword(user.getPassword());
+        user.setPassword(encryptedPassword);
+
+        return userPersistencePort.saveCustomer(user);
+    }
 }

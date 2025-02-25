@@ -145,4 +145,46 @@ public class UserCaseTest {
 
         verify(userPersistencePort).updateNit(documentNumber, nitRestaurant);
     }
+
+    @Test
+    public void test_save_adult_customer_success() {
+        LocalDate adultBirthDate = LocalDate.now().minusYears(20);
+        User user = new User(1L, "John", "Doe", "123", "+1234567890",
+                adultBirthDate, "john@example.com", "password", new Role(4L, "Customer", "description"), null);
+
+        String encryptedPassword = "encrypted_password";
+        when(passwordEncryptionPort.encryptPassword("password")).thenReturn(encryptedPassword);
+        when(userPersistencePort.saveCustomer(any(User.class))).thenReturn(user);
+
+        // Act
+        User savedUser = userCase.saveCustomer(user);
+
+        // Assert
+        assertNotNull(savedUser);
+        verify(passwordEncryptionPort).encryptPassword("password");
+        verify(userPersistencePort).saveCustomer(user);
+        assertEquals(encryptedPassword, savedUser.getPassword());
+    }
+
+    @Test
+    public void test_save_underage_customer_throws_exception() {
+        // Arrange
+        IUserPersistencePort userPersistencePort = mock(IUserPersistencePort.class);
+        IPasswordEncryptionPort passwordEncryptionPort = mock(IPasswordEncryptionPort.class);
+        ISmallSquarePersistencePort smallSquarePersistencePort = mock(ISmallSquarePersistencePort.class);
+
+        UserCase userCase = new UserCase(userPersistencePort, passwordEncryptionPort, smallSquarePersistencePort);
+
+        LocalDate underageBirthDate = LocalDate.now().minusYears(17);
+        User user = new User(1L, "John", "Doe", "123", "+1234567890",
+                underageBirthDate, "john@example.com", "password", new Role(4L, "Customer", "description"), null);
+
+        // Act & Assert
+        InvalidArgumentsException exception = assertThrows(InvalidArgumentsException.class,
+                () -> userCase.saveCustomer(user));
+
+        assertEquals(String.format(INVALID_ARGUMENTS_MESSAGE, "date of birth"), exception.getMessage());
+        verify(passwordEncryptionPort, never()).encryptPassword(any());
+        verify(userPersistencePort, never()).saveCustomer(any());
+    }
 }

@@ -7,4 +7,5 @@ public interface IUserServicePort {
     boolean isOwner(String documentNumber);
     User saveEmployee(User user);
     void updateNit (String documentNumber, String nitRestaurant);
+    User saveCustomer (User user);
 }

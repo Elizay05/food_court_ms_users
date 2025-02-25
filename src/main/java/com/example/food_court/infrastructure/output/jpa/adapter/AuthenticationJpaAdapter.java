@@ -16,7 +16,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationAdapter implements IAuthenticationPersistencePort {
+public class AuthenticationJpaAdapter implements IAuthenticationPersistencePort {
 
     private final IUserRepository userRepository;
     private final JwtService jwtService;

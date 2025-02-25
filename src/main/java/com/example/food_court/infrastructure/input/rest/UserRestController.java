@@ -61,6 +61,21 @@ public class UserRestController {
         return ResponseEntity.ok(isValid);
     }
 
+    @Operation(
+            summary = "Create a new employee",
+            description = "Registers a new employee in the system."
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "User details for registration",
+            required = true,
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = UserRequest.class)
+            )
+    )
+    @ApiResponse(responseCode = "201", description = "Employee successfully created")
+    @ApiResponse(responseCode = "400", description = "Validation error",
+            content = @Content(mediaType = "application/json"))
     @PostMapping("/saveEmployee")
     @PreAuthorize("hasRole('ROLE_Owner')")
     public ResponseEntity<Void> saveEmployee(@Valid @RequestBody UserRequest userRequest) {
@@ -68,6 +83,19 @@ public class UserRestController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @Operation(
+            summary = "Update restaurant NIT for an owner",
+            description = "Updates the NIT (tax identification number) of a restaurant associated with a given owner document number."
+    )
+    @ApiResponse(responseCode = "200", description = "NIT successfully updated")
+    @ApiResponse(responseCode = "400", description = "Invalid document number or NIT format",
+            content = @Content(mediaType = "application/json"))
+    @ApiResponse(responseCode = "403", description = "Forbidden - User lacks necessary permissions",
+            content = @Content(mediaType = "application/json"))
+    @ApiResponse(responseCode = "404", description = "Owner not found",
+            content = @Content(mediaType = "application/json"))
+    @ApiResponse(responseCode = "500", description = "Internal server error",
+            content = @Content(mediaType = "application/json"))
     @PutMapping("/updateNit/{documentNumber}/{nitRestaurant}")
     @PreAuthorize("hasRole('ROLE_Administrator')")
     public ResponseEntity<String> updateNit(
@@ -75,5 +103,26 @@ public class UserRestController {
             @PathVariable String nitRestaurant) {
         userHandler.updateNit(documentNumber, nitRestaurant);
         return ResponseEntity.status(HttpStatus.OK).build();
+    }
+
+    @Operation(
+            summary = "Create a new customer",
+            description = "Registers a new customer in the system."
+    )
+    @io.swagger.v3.oas.annotations.parameters.RequestBody(
+            description = "User details for registration",
+            required = true,
+            content = @Content(
+                    mediaType = "application/json",
+                    schema = @Schema(implementation = UserRequest.class)
+            )
+    )
+    @ApiResponse(responseCode = "201", description = "Customer successfully created")
+    @ApiResponse(responseCode = "400", description = "Validation error",
+            content = @Content(mediaType = "application/json"))
+    @PostMapping("/saveCustomer")
+    public ResponseEntity<Void> saveCustomer(@Valid @RequestBody UserRequest userRequest) {
+        userHandler.saveCustomer(userRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
