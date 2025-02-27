@@ -116,8 +116,4 @@ public class UserJpaAdapter implements IUserPersistencePort {
     }
 
     @Override
-    public Optional<User> getUserByDocument(String documentNumber) {
-        return userRepository.findByDocumentNumber(documentNumber)
-                .map(userEntityMapper::UserEntitytoUser);
-    }
 }

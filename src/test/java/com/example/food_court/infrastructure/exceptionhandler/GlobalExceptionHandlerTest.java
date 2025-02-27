@@ -1,6 +1,7 @@
 package com.example.food_court.infrastructure.exceptionhandler;
 
 import com.example.food_court.domain.exception.InvalidArgumentsException;
+import com.example.food_court.domain.exception.UserNotFoundException;
 import com.example.food_court.infrastructure.exception.ElementNotFoundException;
 import com.example.food_court.infrastructure.exception.FieldAlreadyExistsException;
 import com.example.food_court.infrastructure.exception.IncorrectCredentialsException;
@@ -121,5 +122,19 @@ public class GlobalExceptionHandlerTest {
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
         assertEquals(errorMessage, response.getBody().getMessage());
         assertEquals(HttpStatus.BAD_REQUEST.toString(), response.getBody().getStatus());
+    }
+
+    @Test
+    public void testHandleUserNotFoundExceptionReturnsExceptionResponseWithNotFoundStatus() {
+        GlobalExceptionHandler handler = new GlobalExceptionHandler();
+
+        String errorMessage = "Incorect credentials";
+        UserNotFoundException ex = new UserNotFoundException(errorMessage);
+
+        ResponseEntity<ExceptionResponse> response = handler.handleUserNotFoundException(ex);
+
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals(errorMessage, response.getBody().getMessage());
+        assertEquals(HttpStatus.NOT_FOUND.toString(), response.getBody().getStatus());
     }
 }

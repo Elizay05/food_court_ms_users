@@ -45,9 +45,4 @@ public class UserHandler implements IUserHandler {
         User user = userRequestMapper.UserRequestToUser(userRequest);
         userServicePort.saveCustomer(user);
     }
-
-    @Override
-    public String getPhoneByDocument(String documentNumber) {
-        return userServicePort.getPhoneByDocument(documentNumber);
-    }
 }

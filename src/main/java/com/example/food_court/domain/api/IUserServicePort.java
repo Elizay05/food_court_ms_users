@@ -8,4 +8,5 @@ public interface IUserServicePort {
     User saveEmployee(User user);
     void updateNit (String documentNumber, String nitRestaurant);
     User saveCustomer (User user);
+    String getPhoneByDocument(String documentNumber);
 }

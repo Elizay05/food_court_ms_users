@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
+import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -107,5 +108,33 @@ public class UserRestControllerTest {
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         verify(userHandler).saveCustomer(userRequest);
+    }
+
+    @Test
+    public void test_get_phone_by_document_success() {
+        String documentNumber = "123456789";
+        String expectedPhone = "1234567890";
+
+        when(userHandler.getPhoneByDocument(documentNumber)).thenReturn(expectedPhone);
+
+        ResponseEntity<String> response = userRestController.getPhoneByDocument(documentNumber);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(expectedPhone, response.getBody());
+        verify(userHandler).getPhoneByDocument(documentNumber);
+    }
+
+    @Test
+    public void test_get_phone_by_document_not_found() {
+        String nonExistentDoc = "999999999";
+
+        when(userHandler.getPhoneByDocument(nonExistentDoc))
+                .thenThrow(new NoSuchElementException("User not found"));
+
+        assertThrows(NoSuchElementException.class, () -> {
+            userRestController.getPhoneByDocument(nonExistentDoc);
+        });
+
+        verify(userHandler).getPhoneByDocument(nonExistentDoc);
     }
 }

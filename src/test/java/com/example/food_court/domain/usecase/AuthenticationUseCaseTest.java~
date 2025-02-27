@@ -23,7 +23,7 @@ public class AuthenticationUseCaseTest {
     private AuthenticationUseCase authenticationUseCase;
 
     @Test
-    void authenticate() {
+    public void test_valid_email_authenticates_successfully() {
         // Arrange
         Authentication auth = new Authentication("test@email.com", "password123");
         Token expectedToken = new Token("token123");
@@ -38,7 +38,7 @@ public class AuthenticationUseCaseTest {
     }
 
     @Test
-    void isValidEmail() {
+    public void test_invalid_email_throws_exception() {
         // Arrange
         Authentication auth = new Authentication("invalid.email", "password123");
 

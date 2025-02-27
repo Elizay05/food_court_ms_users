@@ -12,7 +12,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -105,30 +105,5 @@ public class UserHandlerTest {
         // Assert
         verify(userRequestMapper).UserRequestToUser(userRequest);
         verify(userServicePort).saveCustomer(expectedUser);
-    }
-
-    @Test
-    public void test_get_phone_returns_number_for_valid_document() {
-        String documentNumber = "123456789";
-        String expectedPhone = "3001234567";
-
-        when(userServicePort.getPhoneByDocument(documentNumber)).thenReturn(expectedPhone);
-
-        String result = userHandler.getPhoneByDocument(documentNumber);
-
-        assertEquals(expectedPhone, result);
-        verify(userServicePort).getPhoneByDocument(documentNumber);
-    }
-
-    @Test
-    public void test_get_phone_returns_null_for_nonexistent_document() {
-        String documentNumber = "999999999";
-
-        when(userServicePort.getPhoneByDocument(documentNumber)).thenReturn(null);
-
-        String result = userHandler.getPhoneByDocument(documentNumber);
-
-        assertNull(result);
-        verify(userServicePort).getPhoneByDocument(documentNumber);
     }
 }
