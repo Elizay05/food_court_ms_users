@@ -1,6 +1,7 @@
 package com.example.food_court.infrastructure.exceptionhandler;
 
 import com.example.food_court.domain.exception.InvalidArgumentsException;
+import com.example.food_court.domain.exception.UserNotFoundException;
 import com.example.food_court.infrastructure.exception.ElementNotFoundException;
 import com.example.food_court.infrastructure.exception.FieldAlreadyExistsException;
 import com.example.food_court.infrastructure.exception.IncorrectCredentialsException;
@@ -48,6 +49,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ExceptionResponse> handleIncorrectCredentialsException(IncorrectCredentialsException ex) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(ex.getMessage(), HttpStatus.BAD_REQUEST.toString(), LocalDateTime.now());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(exceptionResponse);
+    }
+
+    @ExceptionHandler(UserNotFoundException.class)
+    public ResponseEntity<ExceptionResponse> handleUserNotFoundException(UserNotFoundException ex) {
+        ExceptionResponse exceptionResponse = new ExceptionResponse(ex.getMessage(), HttpStatus.NOT_FOUND.toString(), LocalDateTime.now());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(exceptionResponse);
     }
 
     @ExceptionHandler(Exception.class)

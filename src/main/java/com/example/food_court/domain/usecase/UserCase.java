@@ -2,10 +2,12 @@ package com.example.food_court.domain.usecase;
 
 import com.example.food_court.domain.api.IUserServicePort;
 import com.example.food_court.domain.exception.InvalidArgumentsException;
+import com.example.food_court.domain.exception.UserNotFoundException;
 import com.example.food_court.domain.model.User;
 import com.example.food_court.domain.spi.IPasswordEncryptionPort;
 import com.example.food_court.domain.spi.ISmallSquarePersistencePort;
 import com.example.food_court.domain.spi.IUserPersistencePort;
+import com.example.food_court.infrastructure.exceptionhandler.ExceptionMessages;
 
 import java.time.LocalDate;
 import java.time.Period;
@@ -28,6 +30,9 @@ public class UserCase implements IUserServicePort {
     public User saveOwner(User user) {
         if (!isAdult(user.getDateBirth())) {
             throw new InvalidArgumentsException(String.format(INVALID_ARGUMENTS_MESSAGE, "date of birth"));
+        }
+        if (!isValidPhoneNumber(user.getCellphoneNumber())) {
+            throw new InvalidArgumentsException(String.format(INVALID_ARGUMENTS_MESSAGE, "phone number"));
         }
         String encryptedPassword = passwordEncryptionPort.encryptPassword(user.getPassword());
         user.setPassword(encryptedPassword);
@@ -53,6 +58,10 @@ public class UserCase implements IUserServicePort {
             throw new InvalidArgumentsException(String.format(INVALID_ARGUMENTS_MESSAGE, "date of birth"));
         }
 
+        if (!isValidPhoneNumber(user.getCellphoneNumber())) {
+            throw new InvalidArgumentsException(String.format(INVALID_ARGUMENTS_MESSAGE, "phone number"));
+        }
+
         String encryptedPassword = passwordEncryptionPort.encryptPassword(user.getPassword());
         user.setPassword(encryptedPassword);
 
@@ -73,9 +82,27 @@ public class UserCase implements IUserServicePort {
             throw new InvalidArgumentsException(String.format(INVALID_ARGUMENTS_MESSAGE, "date of birth"));
         }
 
+        if (!isValidPhoneNumber(user.getCellphoneNumber())) {
+            throw new InvalidArgumentsException(String.format(INVALID_ARGUMENTS_MESSAGE, "phone number"));
+        }
+
         String encryptedPassword = passwordEncryptionPort.encryptPassword(user.getPassword());
         user.setPassword(encryptedPassword);
 
         return userPersistencePort.saveCustomer(user);
+    }
+
+    @Override
+    public String getPhoneByDocument(String documentNumber) {
+        User user = userPersistencePort.getUserByDocument(documentNumber)
+                .orElseThrow(() -> new UserNotFoundException(
+                        String.format(ExceptionMessages.ELEMENT_NOT_FOUND, "User")
+                ));
+        return user.getCellphoneNumber();
+    }
+
+    private boolean isValidPhoneNumber(String phoneNumber) {
+        String regex = "^\\+\\d{1,3}\\d{7,}$";
+        return phoneNumber != null && phoneNumber.matches(regex);
     }
 }

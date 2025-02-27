@@ -392,38 +392,4 @@ public class UserJpaAdapterTest {
         assertEquals("role was not found.", exception.getMessage());
         verify(userRepository, never()).save(any());
     }
-
-    @Test
-    public void test_get_user_by_document_when_exists() {
-        String documentNumber = "123456789";
-        UserEntity userEntity = new UserEntity();
-        User expectedUser = new User(1L, "John", "Doe", documentNumber, "1234567890",
-                LocalDate.now(), "john@example.com", "password", new Role(2L, "OWNER", "description"), "123");
-
-        when(userRepository.findByDocumentNumber(documentNumber))
-                .thenReturn(Optional.of(userEntity));
-        when(userEntityMapper.UserEntitytoUser(userEntity))
-                .thenReturn(expectedUser);
-
-        Optional<User> result = userJpaAdapter.getUserByDocument(documentNumber);
-
-        assertTrue(result.isPresent());
-        assertEquals(expectedUser, result.get());
-        verify(userRepository).findByDocumentNumber(documentNumber);
-        verify(userEntityMapper).UserEntitytoUser(userEntity);
-    }
-
-    @Test
-    public void test_get_user_by_document_with_null_parameter() {
-        String documentNumber = null;
-
-        when(userRepository.findByDocumentNumber(documentNumber))
-                .thenReturn(Optional.empty());
-
-        Optional<User> result = userJpaAdapter.getUserByDocument(documentNumber);
-
-        assertFalse(result.isPresent());
-        verify(userRepository).findByDocumentNumber(documentNumber);
-        verify(userEntityMapper, never()).UserEntitytoUser(any());
-    }
 }

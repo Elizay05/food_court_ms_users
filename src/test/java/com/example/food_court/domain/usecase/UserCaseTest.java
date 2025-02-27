@@ -1,6 +1,7 @@
 package com.example.food_court.domain.usecase;
 
 import com.example.food_court.domain.exception.InvalidArgumentsException;
+import com.example.food_court.domain.exception.UserNotFoundException;
 import com.example.food_court.domain.model.Role;
 import com.example.food_court.domain.model.User;
 import com.example.food_court.domain.spi.IPasswordEncryptionPort;
@@ -12,6 +13,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static com.example.food_court.infrastructure.exceptionhandler.ExceptionMessages.INVALID_ARGUMENTS_MESSAGE;
 import static org.junit.jupiter.api.Assertions.*;
@@ -34,9 +36,9 @@ public class UserCaseTest {
 
     @Test
     public void SaveOwnerWithValidAdultUserReturnsSavedUser() {
-        User adultUser = new User(1L, "John", "Doe", "123", "+1234567890",
+        User adultUser = new User(1L, "John", "Doe", "123", "+571234567890",
                 LocalDate.now().minusYears(20), "john@email.com", "password", new Role(2L, "OWNER", "description"), "1112223334");
-        User expectedUser = new User(1L, "John", "Doe", "123", "+1234567890",
+        User expectedUser = new User(1L, "John", "Doe", "123", "+571234567890",
                 LocalDate.now().minusYears(20), "john@email.com", "encrypted", new Role(2L, "OWNER", "description"), "1112223334");
 
         when(passwordEncryptionPort.encryptPassword("password")).thenReturn("encrypted");
@@ -90,8 +92,20 @@ public class UserCaseTest {
     }
 
     @Test
+    public void test_save_owner_with_invalid_phone_number() {
+        LocalDate validBirthDate = LocalDate.now().minusYears(20);
+        User user = new User(1L, "John", "Doe", "123", "invalidPhone", validBirthDate,
+                "john@example.com", "password", new Role(2L, "OWNER", "description"), null);
+
+        // Act & Assert
+        assertThrows(InvalidArgumentsException.class, () -> {
+            userCase.saveOwner(user);
+        });
+    }
+
+    @Test
     public void test_save_employee_with_valid_adult_data() {
-        User user = new User(1L, "John", "Doe", "123", "+1234567890",
+        User user = new User(1L, "John", "Doe", "123", "+571234567890",
                 LocalDate.now().minusYears(20), "john@example.com", "password", new Role(3L, "Employee", "description"), "1112223334");
 
         String encryptedPassword = "encrypted_password";
@@ -127,6 +141,32 @@ public class UserCaseTest {
     }
 
     @Test
+    public void test_save_employee_invalid_phone_number() {
+        UserCase userCase = new UserCase(userPersistencePort, passwordEncryptionPort, smallSquarePersistencePort);
+
+        User user = new User(1L, "John", "Doe", "123", "invalidPhone",
+                LocalDate.now().minusYears(20), "john@example.com", "password", new Role(3L, "Employee", "description") , null);
+
+        // Act & Assert
+        assertThrows(InvalidArgumentsException.class, () -> {
+            userCase.saveEmployee(user);
+        });
+    }
+
+    @Test
+    public void test_save_employee_with_null_phone_number_throws_exception() {
+        UserCase userCase = new UserCase(userPersistencePort, passwordEncryptionPort, smallSquarePersistencePort);
+
+        User user = new User(1L, "John", "Doe", "123", null,
+                LocalDate.now().minusYears(20), "john@example.com", "password", new Role(3L, "Employee", "description"), null);
+
+        // Act & Assert
+        assertThrows(InvalidArgumentsException.class, () -> {
+            userCase.saveEmployee(user);
+        });
+    }
+
+    @Test
     public void test_update_nit_success() {
         String documentNumber = "123456789";
         String nitRestaurant = "987654321";
@@ -149,7 +189,7 @@ public class UserCaseTest {
     @Test
     public void test_save_adult_customer_success() {
         LocalDate adultBirthDate = LocalDate.now().minusYears(20);
-        User user = new User(1L, "John", "Doe", "123", "+1234567890",
+        User user = new User(1L, "John", "Doe", "123", "+571234567890",
                 adultBirthDate, "john@example.com", "password", new Role(4L, "Customer", "description"), null);
 
         String encryptedPassword = "encrypted_password";
@@ -168,13 +208,6 @@ public class UserCaseTest {
 
     @Test
     public void test_save_underage_customer_throws_exception() {
-        // Arrange
-        IUserPersistencePort userPersistencePort = mock(IUserPersistencePort.class);
-        IPasswordEncryptionPort passwordEncryptionPort = mock(IPasswordEncryptionPort.class);
-        ISmallSquarePersistencePort smallSquarePersistencePort = mock(ISmallSquarePersistencePort.class);
-
-        UserCase userCase = new UserCase(userPersistencePort, passwordEncryptionPort, smallSquarePersistencePort);
-
         LocalDate underageBirthDate = LocalDate.now().minusYears(17);
         User user = new User(1L, "John", "Doe", "123", "+1234567890",
                 underageBirthDate, "john@example.com", "password", new Role(4L, "Customer", "description"), null);
@@ -186,5 +219,51 @@ public class UserCaseTest {
         assertEquals(String.format(INVALID_ARGUMENTS_MESSAGE, "date of birth"), exception.getMessage());
         verify(passwordEncryptionPort, never()).encryptPassword(any());
         verify(userPersistencePort, never()).saveCustomer(any());
+    }
+
+    @Test
+    public void test_save_customer_invalid_phone_number_throws_exception() {
+        User invalidUser = new User(1L, "Jane", "Doe", "456", "123456",
+                LocalDate.now().minusYears(25), "jane@example.com", "password", new Role(4L, "Customer", "description"), null);
+
+        // Act & Assert
+        assertThrows(InvalidArgumentsException.class, () -> {
+            userCase.saveCustomer(invalidUser);
+        });
+    }
+
+    @Test
+    public void test_returns_phone_when_user_exists() {
+        String documentNumber = "123456789";
+        String expectedPhone = "3001234567";
+
+        User mockUser = new User(1L, "John", "Doe", documentNumber, expectedPhone,
+                LocalDate.now(), "john@email.com", "pass123", new Role(4L, "Customer", "description"), null);
+
+        when(userPersistencePort.getUserByDocument(documentNumber))
+                .thenReturn(Optional.of(mockUser));
+
+        // Act
+        String actualPhone = userCase.getPhoneByDocument(documentNumber);
+
+        // Assert
+        assertEquals(expectedPhone, actualPhone);
+        verify(userPersistencePort).getUserByDocument(documentNumber);
+    }
+
+    @Test
+    public void test_throws_exception_when_user_not_found() {
+        String documentNumber = "nonexistent";
+
+        when(userPersistencePort.getUserByDocument(documentNumber))
+                .thenReturn(Optional.empty());
+
+
+        // Act & Assert
+        UserNotFoundException exception = assertThrows(UserNotFoundException.class,
+                () -> userCase.getPhoneByDocument(documentNumber));
+
+        assertEquals("User was not found.", exception.getMessage());
+        verify(userPersistencePort).getUserByDocument(documentNumber);
     }
 }

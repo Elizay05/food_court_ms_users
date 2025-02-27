@@ -127,7 +127,6 @@ public class UserRestController {
     }
 
     @GetMapping("/getPhoneByDocument/{documentNumber}")
-    @PreAuthorize("hasRole('ROLE_Employee')")
     public ResponseEntity<String> getPhoneByDocument(@PathVariable String documentNumber) {
         String phoneNumber = userHandler.getPhoneByDocument(documentNumber);
         return ResponseEntity.ok(phoneNumber);

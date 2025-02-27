@@ -142,32 +142,4 @@ public class SmallSquareRestAdapterTest {
                 eq(String.class)
         );
     }
-
-    @Test
-    public void test_generic_exception_throws_runtime_exception() {
-        String token = "Bearer valid-token";
-
-        when(httpServletRequest.getHeader("Authorization")).thenReturn(token);
-
-        when(restTemplate.exchange(
-                eq(DomainConstants.URL_VALIDATE_NIT),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(String.class)
-        )).thenThrow(new RuntimeException("Unexpected error"));
-
-        // Act & Assert
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
-            smallSquareRestAdapter.validateNit();
-        });
-
-        assertEquals("Error inesperado al obtener el NIT del microservicio de restaurantes: Unexpected error", exception.getMessage());
-        verify(httpServletRequest).getHeader("Authorization");
-        verify(restTemplate).exchange(
-                eq(DomainConstants.URL_VALIDATE_NIT),
-                eq(HttpMethod.GET),
-                any(HttpEntity.class),
-                eq(String.class)
-        );
-    }
 }

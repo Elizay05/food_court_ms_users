@@ -8,4 +8,5 @@ public interface IUserHandler {
     void saveEmployee(UserRequest userRequest);
     void updateNit (String documentNumber, String nitRestaurant);
     void saveCustomer (UserRequest userRequest);
+    String getPhoneByDocument (String documentNumber);
 }
